@@ -5,30 +5,18 @@ compatibility_date = "2024-06-11"
 # Cloudflare KV Binding
 [[kv_namespaces]]
 binding = "DB_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_YOUR_KV_PREVIEW_ID"
+id = "6e52c8fbca77762930fedfcfbc059a47" # آیدی KV شما (بر اساس اِکانت آیدی لاگ شما حدس زده شده، اگر اشتباست از پنل چک کنید)
 
 # Cloudflare D1 Binding
 [[d1_databases]]
 binding = "DB_D1"
 database_name = "telegram-uploader-bot"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "a1685a47-f253-c8fb-ca77-762930fedfcf" # آیدی دیتابیس D1 شما از لاگ بیلد قبلی
 
-# Environment Variables
-[env.production.vars]
-BOT_TOKEN = ""
-BOT_USERNAME = ""
-MAIN_CHANNEL_ID = ""
-DATABASE_CHANNEL_ID = ""
+# Environment Variables (Production)
+[vars]
+BOT_TOKEN = "8828889841:AAH6Z5Xj8yJTIwZWULqYhf7k_mYuXYIp71o"
+BOT_USERNAME = "NasimMovie_Bot"
+MAIN_CHANNEL_ID = "-1004223334690"
+DATABASE_CHANNEL_ID = "-1004208092671"
 ADMIN_CACHE_TTL = "3600"
-
-[env.development.vars]
-BOT_TOKEN = ""
-BOT_USERNAME = ""
-MAIN_CHANNEL_ID = ""
-DATABASE_CHANNEL_ID = ""
-ADMIN_CACHE_TTL = "3600"
-
-# Triggers
-[triggers]
-crons = []
