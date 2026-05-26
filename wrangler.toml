@@ -4,14 +4,14 @@ compatibility_date = "2024-06-11"
 
 # Cloudflare KV Binding
 [[kv_namespaces]]
-binding = "DB_KV"
-id = "6e52c8fbca77762930fedfcfbc059a47" # آیدی KV شما (بر اساس اِکانت آیدی لاگ شما حدس زده شده، اگر اشتباست از پنل چک کنید)
+binding = "TETGRAM-DB_KV"
+id = "e4f716a3ac1148459c22658e76b90be5" # آیدی KV شما (بر اساس اِکانت آیدی لاگ شما حدس زده شده، اگر اشتباست از پنل چک کنید)
 
 # Cloudflare D1 Binding
 [[d1_databases]]
 binding = "DB_D1"
 database_name = "telegram-uploader-bot"
-database_id = "a1685a47-f253-c8fb-ca77-762930fedfcf" # آیدی دیتابیس D1 شما از لاگ بیلد قبلی
+database_id = "449bd1d8-4e08-4abc-972b-586a2d349880" # آیدی دیتابیس D1 شما از لاگ بیلد قبلی
 
 # Environment Variables (Production)
 [vars]
