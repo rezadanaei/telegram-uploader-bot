@@ -1,0 +1,25 @@
+{
+  "name": "telegram-uploader-bot",
+  "version": "1.0.0",
+  "description": "Production-ready Telegram Bot for Movies/Series Upload & Download on Cloudflare Workers",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute telegram-uploader-bot --file=./schema.sql"
+  },
+  "keywords": [
+    "telegram",
+    "cloudflare-workers",
+    "d1",
+    "kv",
+    "bot"
+  ],
+  "author": "Backend Security Engineer",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "@cloudflare/workers-types": "^4.20240620.1"
+  }
+}
