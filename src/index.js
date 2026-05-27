@@ -190,6 +190,7 @@ async function handleCallbackQuery(
   const userId = callbackQuery.from.id;
   const chatId = callbackQuery.message.chat.id;
   const callbackQueryId = callbackQuery.id;
+  const messageId = callbackQuery.message?.message_id;
   const data = callbackQuery.data;
   const parsed = parseCallbackData(data);
 
@@ -228,30 +229,35 @@ async function handleCallbackQuery(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction === "view_current_template") {
         await adminWorkflow.adminPanel.showTemplatePreview(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction === "reset_template") {
         await adminWorkflow.adminPanel.resetTemplate(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction === "settings") {
         await adminWorkflow.adminPanel.showSettings(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction === "button_language_menu") {
         await adminWorkflow.adminPanel.showButtonLanguageMenu(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction.startsWith("set_button_lang_")) {
         const language = subaction.replace("set_button_lang_", "");
@@ -260,12 +266,14 @@ async function handleCallbackQuery(
           chatId,
           callbackQueryId,
           language,
+          messageId,
         );
       } else if (subaction === "pending_posts") {
         await adminWorkflow.adminPanel.showPendingPosts(
           userId,
           chatId,
           callbackQueryId,
+          messageId,
         );
       } else if (subaction.startsWith("approve_post_")) {
         const postId = parseInt(subaction.replace("approve_post_", ""));
@@ -274,6 +282,7 @@ async function handleCallbackQuery(
           chatId,
           callbackQueryId,
           postId,
+          messageId,
         );
       } else if (subaction.startsWith("reject_post_")) {
         const postId = parseInt(subaction.replace("reject_post_", ""));
@@ -282,6 +291,7 @@ async function handleCallbackQuery(
           chatId,
           callbackQueryId,
           postId,
+          messageId,
         );
       } else if (subaction.startsWith("preview_post_")) {
         const postId = parseInt(subaction.replace("preview_post_", ""));
@@ -291,6 +301,7 @@ async function handleCallbackQuery(
             userId,
             chatId,
             callbackQueryId,
+            messageId,
             post,
           );
         }

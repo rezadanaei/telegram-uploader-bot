@@ -104,8 +104,7 @@ export class TelegramAPI {
   /**
    * Edit message text content
    */
-  async editMessageText(chatId, callbackQueryId, text, options = {}) {
-    const messageId = callbackQueryId; // In most cases, this is the message_id
+  async editMessageText(chatId, messageId, text, options = {}) {
     return this.request("editMessageText", {
       chat_id: chatId,
       message_id: messageId,

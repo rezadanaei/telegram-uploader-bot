@@ -84,10 +84,30 @@ export class AdminPanel {
     }
   }
 
+  async updateOrSendText(chatId, messageId, text, options = {}) {
+    if (messageId) {
+      try {
+        return await this.telegramAPI.editMessageText(
+          chatId,
+          messageId,
+          text,
+          options,
+        );
+      } catch (error) {
+        console.warn(
+          "[AdminPanel] editMessageText failed, falling back to sendMessage:",
+          error,
+        );
+      }
+    }
+
+    return await this.telegramAPI.sendMessage(chatId, text, options);
+  }
+
   /**
    * Show template editor
    */
-  async showTemplateEditor(userId, chatId, callbackQueryId) {
+  async showTemplateEditor(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_EDIT_TEMPLATE", userId);
 
     try {
@@ -126,9 +146,9 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.telegramAPI.editMessageText(
+      await this.updateOrSendText(
         chatId,
-        callbackQueryId,
+        messageId,
         t("admin_template_editor", adminLanguage || "en"),
         {
           parse_mode: "HTML",
@@ -149,7 +169,7 @@ export class AdminPanel {
   /**
    * Show current template preview
    */
-  async showTemplatePreview(userId, chatId, callbackQueryId) {
+  async showTemplatePreview(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_VIEW_CURRENT_TEMPLATE", userId);
 
     try {
@@ -182,7 +202,7 @@ export class AdminPanel {
 
       const message = `<b>📋 Current Template Preview:</b>\n\n${escapeHtml(template)}\n\n<b>📸 Sample Render:</b>\n${renderedPreview}`;
 
-      await this.telegramAPI.editMessageText(chatId, callbackQueryId, message, {
+      await this.updateOrSendText(chatId, messageId, message, {
         parse_mode: "HTML",
         reply_markup: keyboard,
       });
@@ -200,7 +220,7 @@ export class AdminPanel {
   /**
    * Reset template to default
    */
-  async resetTemplate(userId, chatId, callbackQueryId) {
+  async resetTemplate(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_RESET_TEMPLATE", userId);
 
     try {
@@ -212,7 +232,7 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.showTemplateEditor(userId, chatId, callbackQueryId);
+      await this.showTemplateEditor(userId, chatId, callbackQueryId, messageId);
       console.log(`[AdminPanel] Template reset to default for user ${userId}`);
     } catch (error) {
       console.error("[AdminPanel] Failed to reset template:", error);
@@ -226,7 +246,7 @@ export class AdminPanel {
   /**
    * Show settings menu
    */
-  async showSettings(userId, chatId, callbackQueryId) {
+  async showSettings(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_SETTINGS", userId);
 
     try {
@@ -255,9 +275,9 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.telegramAPI.editMessageText(
+      await this.updateOrSendText(
         chatId,
-        callbackQueryId,
+        messageId,
         t("admin_settings_menu", "en"),
         {
           parse_mode: "HTML",
@@ -278,7 +298,7 @@ export class AdminPanel {
   /**
    * Show button language selection
    */
-  async showButtonLanguageMenu(userId, chatId, callbackQueryId) {
+  async showButtonLanguageMenu(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_BUTTON_LANGUAGE_MENU", userId);
 
     try {
@@ -316,9 +336,9 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.telegramAPI.editMessageText(
+      await this.updateOrSendText(
         chatId,
-        callbackQueryId,
+        messageId,
         "<b>🌐 Select Language for Channel Buttons:</b>",
         {
           parse_mode: "HTML",
@@ -339,7 +359,13 @@ export class AdminPanel {
   /**
    * Set button language
    */
-  async setButtonLanguage(userId, chatId, callbackQueryId, language) {
+  async setButtonLanguage(
+    userId,
+    chatId,
+    callbackQueryId,
+    language,
+    messageId,
+  ) {
     logAction("ADMIN_SET_BUTTON_LANGUAGE", userId, { language });
 
     try {
@@ -350,7 +376,7 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.showSettings(userId, chatId, callbackQueryId);
+      await this.showSettings(userId, chatId, callbackQueryId, messageId);
       console.log(
         `[AdminPanel] Button language set to ${language} for user ${userId}`,
       );
@@ -366,7 +392,7 @@ export class AdminPanel {
   /**
    * Show pending posts for approval
    */
-  async showPendingPosts(userId, chatId, callbackQueryId) {
+  async showPendingPosts(userId, chatId, callbackQueryId, messageId) {
     logAction("ADMIN_PENDING_POSTS", userId);
 
     try {
@@ -390,9 +416,9 @@ export class AdminPanel {
           ],
         };
 
-        await this.telegramAPI.editMessageText(
+        await this.updateOrSendText(
           chatId,
-          callbackQueryId,
+          messageId,
           "<b>📋 Pending Posts:</b>\n\n✅ No pending posts for approval",
           {
             parse_mode: "HTML",
@@ -404,7 +430,13 @@ export class AdminPanel {
 
       // Show first pending post
       const post = pendingPosts[0];
-      await this.showPostApprovalDialog(userId, chatId, callbackQueryId, post);
+      await this.showPostApprovalDialog(
+        userId,
+        chatId,
+        callbackQueryId,
+        messageId,
+        post,
+      );
 
       console.log(
         `[AdminPanel] Pending posts shown to user ${userId}: ${pendingPosts.length} post(s)`,
@@ -421,7 +453,13 @@ export class AdminPanel {
   /**
    * Show post approval dialog
    */
-  async showPostApprovalDialog(userId, chatId, callbackQueryId, post) {
+  async showPostApprovalDialog(
+    userId,
+    chatId,
+    callbackQueryId,
+    messageId,
+    post,
+  ) {
     try {
       const movie = await this.db.getMovie(post.movie_id);
 
@@ -458,7 +496,7 @@ export class AdminPanel {
 
       const message = `<b>📋 Pending Post Approval</b>\n\n<b>Movie:</b> ${escapeHtml(movie.title)}\n<b>Status:</b> ${post.status}\n<b>Created:</b> ${post.created_at}\n\n<b>Caption Preview:</b>\n${post.caption}`;
 
-      await this.telegramAPI.editMessageText(chatId, callbackQueryId, message, {
+      await this.updateOrSendText(chatId, messageId, message, {
         parse_mode: "HTML",
         reply_markup: keyboard,
       });
@@ -474,7 +512,13 @@ export class AdminPanel {
   /**
    * Approve and publish pending post to Main Channel
    */
-  async approveAndPublishPost(userId, chatId, callbackQueryId, postId) {
+  async approveAndPublishPost(
+    userId,
+    chatId,
+    callbackQueryId,
+    postId,
+    messageId,
+  ) {
     logAction("ADMIN_APPROVE_POST", userId, { postId });
 
     try {
@@ -505,7 +549,7 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.showPendingPosts(userId, chatId, callbackQueryId);
+      await this.showPendingPosts(userId, chatId, callbackQueryId, messageId);
       console.log(`[AdminPanel] Post ${postId} approved and published`);
     } catch (error) {
       console.error("[AdminPanel] Failed to approve post:", error);
@@ -519,7 +563,7 @@ export class AdminPanel {
   /**
    * Reject pending post
    */
-  async rejectPost(userId, chatId, callbackQueryId, postId) {
+  async rejectPost(userId, chatId, callbackQueryId, postId, messageId) {
     logAction("ADMIN_REJECT_POST", userId, { postId });
 
     try {
@@ -530,7 +574,7 @@ export class AdminPanel {
         show_alert: false,
       });
 
-      await this.showPendingPosts(userId, chatId, callbackQueryId);
+      await this.showPendingPosts(userId, chatId, callbackQueryId, messageId);
       console.log(`[AdminPanel] Post ${postId} rejected`);
     } catch (error) {
       console.error("[AdminPanel] Failed to reject post:", error);
