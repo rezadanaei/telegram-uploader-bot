@@ -10,7 +10,7 @@ id = "e4f716a3ac1148459c22658e76b90be5" # آیدی KV شما (بر اساس اِ
 # Cloudflare D1 Binding
 [[d1_databases]]
 binding = "DB_D1"
-database_name = "telegram-uploader-bot"
+database_name = "movie_bot_db"
 database_id = "449bd1d8-4e08-4abc-972b-586a2d349880" # آیدی دیتابیس D1 شما از لاگ بیلد قبلی
 
 # Environment Variables (Production)
