@@ -73,6 +73,7 @@ async function processUpdate(update, env) {
         telegramAPI,
         security,
         userWorkflow,
+        adminWorkflow,
       );
     }
   } catch (error) {
@@ -133,6 +134,12 @@ async function handleMessage(
     return;
   }
 
+  // Handle /panel command (open admin panel)
+  if (text === "/panel") {
+    await adminWorkflow.adminPanel.showAdminPanel(userId, chatId);
+    return;
+  }
+
   // Handle /finish command
   if (text === "/finish") {
     await adminWorkflow.handleFinishCommand(
@@ -178,6 +185,7 @@ async function handleCallbackQuery(
   telegramAPI,
   security,
   userWorkflow,
+  adminWorkflow,
 ) {
   const userId = callbackQuery.from.id;
   const chatId = callbackQuery.message.chat.id;
@@ -188,6 +196,7 @@ async function handleCallbackQuery(
   console.log(`[Handler] Callback from user ${userId}: ${data}`);
 
   try {
+    // Language selection (for users)
     if (parsed?.action === "lang") {
       await userWorkflow.handleLanguageSelection(
         userId,
@@ -195,6 +204,128 @@ async function handleCallbackQuery(
         callbackQueryId,
         parsed.language,
       );
+      return;
+    }
+
+    // Admin panel callbacks
+    if (parsed?.action === "admin") {
+      const isAdmin = await security.verifyAdmin(userId);
+      if (!isAdmin) {
+        await telegramAPI.answerCallbackQuery(callbackQueryId, {
+          text: "❌ Unauthorized",
+          show_alert: true,
+        });
+        return;
+      }
+
+      // Route admin panel callbacks
+      const subaction = parsed.subaction;
+
+      if (subaction === "panel_menu") {
+        await adminWorkflow.adminPanel.showAdminPanel(userId, chatId);
+      } else if (subaction === "edit_template") {
+        await adminWorkflow.adminPanel.showTemplateEditor(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction === "view_current_template") {
+        await adminWorkflow.adminPanel.showTemplatePreview(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction === "reset_template") {
+        await adminWorkflow.adminPanel.resetTemplate(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction === "settings") {
+        await adminWorkflow.adminPanel.showSettings(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction === "button_language_menu") {
+        await adminWorkflow.adminPanel.showButtonLanguageMenu(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction.startsWith("set_button_lang_")) {
+        const language = subaction.replace("set_button_lang_", "");
+        await adminWorkflow.adminPanel.setButtonLanguage(
+          userId,
+          chatId,
+          callbackQueryId,
+          language,
+        );
+      } else if (subaction === "pending_posts") {
+        await adminWorkflow.adminPanel.showPendingPosts(
+          userId,
+          chatId,
+          callbackQueryId,
+        );
+      } else if (subaction.startsWith("approve_post_")) {
+        const postId = parseInt(subaction.replace("approve_post_", ""));
+        await adminWorkflow.adminPanel.approveAndPublishPost(
+          userId,
+          chatId,
+          callbackQueryId,
+          postId,
+        );
+      } else if (subaction.startsWith("reject_post_")) {
+        const postId = parseInt(subaction.replace("reject_post_", ""));
+        await adminWorkflow.adminPanel.rejectPost(
+          userId,
+          chatId,
+          callbackQueryId,
+          postId,
+        );
+      } else if (subaction.startsWith("preview_post_")) {
+        const postId = parseInt(subaction.replace("preview_post_", ""));
+        const post = await adminWorkflow.db.getPendingPost(postId);
+        if (post) {
+          await adminWorkflow.adminPanel.showPostApprovalDialog(
+            userId,
+            chatId,
+            callbackQueryId,
+            post,
+          );
+        }
+      }
+      return;
+    }
+
+    // Finish workflow callbacks (approval during finalization)
+    if (parsed?.action === "finish") {
+      const isAdmin = await security.verifyAdmin(userId);
+      if (!isAdmin) {
+        await telegramAPI.answerCallbackQuery(callbackQueryId, {
+          text: "❌ Unauthorized",
+          show_alert: true,
+        });
+        return;
+      }
+
+      const subaction = parsed.subaction;
+
+      if (subaction.startsWith("approve_")) {
+        const postId = parseInt(subaction.replace("approve_", ""));
+        await adminWorkflow.adminPanel.approveAndPublishPost(
+          userId,
+          chatId,
+          callbackQueryId,
+          postId,
+        );
+      } else if (subaction.startsWith("edit_caption_")) {
+        // TODO: Implement caption editing flow
+        await telegramAPI.answerCallbackQuery(callbackQueryId, {
+          text: "Edit caption feature coming soon",
+          show_alert: false,
+        });
+      }
       return;
     }
 

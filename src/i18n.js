@@ -225,6 +225,55 @@ const translations = {
     en: "✅ English language selected.",
     ar: "✅ تم اختيار اللغة العربية.",
   },
+
+  // Admin Panel Messages
+  admin_panel_menu: {
+    fa: "<b>🎛️ پنل مدیریت</b>\n\nدستورات موجود:\n• 📝 ویرایش قالب پست\n• ⚙️ تنظیمات\n• 📋 پست‌های منتظر تایید",
+    en: "<b>🎛️ Admin Panel</b>\n\nAvailable commands:\n• 📝 Edit Post Template\n• ⚙️ Settings\n• 📋 Pending Posts",
+    ar: "<b>🎛️ لوحة التحكم</b>\n\nالأوامر المتاحة:\n• 📝 تحرير قالب البريد\n• ⚙️ الإعدادات\n• 📋 الرسائل المعلقة",
+  },
+
+  admin_template_editor: {
+    fa: "<b>📝 محرر قالب پست</b>\n\nمتغیرهای قابل استفاده:\n• {title} - عنوان فیلم\n• {max_quality} - حداکثر کیفیت\n• {qualities_list} - لیست کیفیت‌های موجود\n\nدستورات:\n• مشاهده فعلی - نمایش قالب فعلی\n• بازنشانی - بازگشت به قالب پیش‌فرض\n• سفارشی - ایجاد قالب جدید",
+    en: "<b>📝 Template Editor</b>\n\nAvailable variables:\n• {title} - Movie title\n• {max_quality} - Maximum quality\n• {qualities_list} - List of available qualities\n\nCommands:\n• View Current - Display current template\n• Reset to Default - Restore default template\n• Custom Template - Create new template",
+    ar: "<b>📝 محرر القالب</b>\n\nالمتغيرات المتاحة:\n• {title} - عنوان الفيلم\n• {max_quality} - الحد الأقصى للجودة\n• {qualities_list} - قائمة الجودات المتاحة\n\nالأوامر:\n• عرض الحالي - عرض القالب الحالي\n• إعادة تعيين - استعادة القالب الافتراضي\n• قالب مخصص - إنشاء قالب جديد",
+  },
+
+  admin_settings_menu: {
+    fa: "<b>⚙️ تنظیمات مدیر</b>\n\nتنظیمات موجود:\n• 🌐 زبان دکمه‌های کانال (فارسی، انگلیسی، عربی)\n\nتنظیمات بیشتر به زودی...",
+    en: "<b>⚙️ Admin Settings</b>\n\nAvailable Settings:\n• 🌐 Channel Button Language (Persian, English, Arabic)\n\nMore settings coming soon...",
+    ar: "<b>⚙️ إعدادات المسؤول</b>\n\nالإعدادات المتاحة:\n• 🌐 لغة زر القناة (فارسي وإنجليزي وعربي)\n\nإعدادات أخرى قريباً...",
+  },
+
+  admin_post_approval: {
+    fa: "<b>✋ تایید پست</b>\n\nپست شما منتظر تایید است.\n\nعنوان: {title}\nکیفیت: {quality}\n\nاگر رضایت دارید، دکمه تایید را فشار دهید.",
+    en: "<b>✋ Post Approval</b>\n\nYour post is waiting for approval.\n\nTitle: {title}\nQuality: {quality}\n\nIf satisfied, click the approval button.",
+    ar: "<b>✋ الموافقة على البريد</b>\n\nرسالتك في انتظار الموافقة.\n\nالعنوان: {title}\nالجودة: {quality}\n\nإذا كنت راضياً، انقر على زر الموافقة.",
+  },
+
+  admin_post_published: {
+    fa: "✅ پست با موفقیت منتشر شد!",
+    en: "✅ Post published successfully!",
+    ar: "✅ تم نشر البريد بنجاح!",
+  },
+
+  admin_post_rejected: {
+    fa: "❌ پست رد شد.",
+    en: "❌ Post rejected.",
+    ar: "❌ تم رفض البريد.",
+  },
+
+  admin_db_channel_error: {
+    fa: "❌ خطا در ذخیره‌سازی در کانال پایگاه‌داده. لطفاً دوباره تلاش کنید.",
+    en: "❌ Error storing in database channel. Please try again.",
+    ar: "❌ خطأ في التخزين في قناة قاعدة البيانات. يرجى المحاولة مرة أخرى.",
+  },
+
+  admin_secure_delivery: {
+    fa: "✅ ویدیو با ایمنی از کانال پایگاه‌داده ارسال شد.",
+    en: "✅ Video securely delivered from database channel.",
+    ar: "✅ تم تسليم الفيديو بأمان من قناة قاعدة البيانات.",
+  },
 };
 
 /**

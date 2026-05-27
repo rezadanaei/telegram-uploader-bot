@@ -83,7 +83,39 @@ export function parseCallbackData(data) {
     };
   }
 
+  if (parts[0] === "admin" && parts.length >= 2) {
+    return {
+      action: "admin",
+      subaction: parts.slice(1).join("_"),
+    };
+  }
+
+  if (parts[0] === "finish" && parts.length >= 2) {
+    return {
+      action: "finish",
+      subaction: parts.slice(1).join("_"),
+    };
+  }
+
   return null;
+}
+
+/**
+ * Render template with dynamic variables
+ * Supports: {variable_name} syntax
+ */
+export function renderTemplate(template, data) {
+  if (!template) return "";
+
+  let result = template;
+
+  // Replace all {variable} patterns
+  for (const [key, value] of Object.entries(data)) {
+    const pattern = new RegExp(`\\{${key}\\}`, "g");
+    result = result.replace(pattern, String(value || ""));
+  }
+
+  return result;
 }
 
 /**

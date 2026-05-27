@@ -1,6 +1,8 @@
 /**
  * Admin Workflow Handler
  * Manages /newmovie, state transitions, and /finish operations
+ * Integrated with Advanced Admin Panel (template management, approval workflow)
+ * Integrated with Database Channel for secure video backup
  */
 
 import {
@@ -11,12 +13,21 @@ import {
   isValidFileId,
 } from "./utils.js";
 import { t } from "./i18n.js";
+import { AdminPanel } from "./admin-panel.js";
+import { PostProcessor } from "./post-processor.js";
+import { DatabaseChannelManager } from "./db-channel.js";
 
 export class AdminWorkflow {
   constructor(telegramAPI, dbManager, kvManager) {
     this.telegramAPI = telegramAPI;
     this.db = dbManager;
     this.kv = kvManager;
+    this.adminPanel = new AdminPanel(telegramAPI, dbManager, kvManager);
+    this.postProcessor = new PostProcessor(
+      telegramAPI,
+      dbManager,
+      this.adminPanel,
+    );
   }
 
   /**
@@ -230,7 +241,8 @@ export class AdminWorkflow {
   }
 
   /**
-   * Handle /finish command - finalize movie and save to D1
+   * Handle /finish command - finalize movie and request approval
+   * Posts are NOT published automatically; they require explicit admin approval
    */
   async handleFinishCommand(userId, chatId, botUsername, mainChannelId) {
     logAction("COMMAND_FINISH", userId);
@@ -279,45 +291,40 @@ export class AdminWorkflow {
 
       await this.db.batchInsertVideoFiles(movieId, videoData);
 
-      // Create deep link
-      const deepLink = createDeepLink(botUsername, movieId);
+      // Get unique qualities
+      const qualities = [...new Set(videos.map((v) => v.quality))];
 
-      // Send to MAIN_CHANNEL with inline keyboard
-      const messageText = formatMovieMessage(title, maxQuality, adminLanguage);
-      const keyboard = {
-        inline_keyboard: [
-          [
-            {
-              text: "📥 Download",
-              url: deepLink,
-            },
-          ],
-        ],
-      };
+      // Generate caption from template
+      const caption = await this.postProcessor.generateCaption(
+        userId,
+        { title, max_quality: maxQuality },
+        qualities,
+      );
 
-      await this.telegramAPI.sendPhoto(mainChannelId, bannerFileId, {
-        caption: messageText,
-        reply_markup: keyboard,
-      });
+      // Create pending post (awaiting approval)
+      const postId = await this.postProcessor.createPendingPost(
+        movieId,
+        userId,
+        caption,
+      );
+
+      // Show preview to admin for approval
+      await this.postProcessor.showPostPreview(
+        movieId,
+        userId,
+        chatId,
+        caption,
+        bannerFileId,
+        qualities,
+        postId,
+      );
 
       // Clear KV draft data
       await this.kv.deleteState(userId);
       await this.kv.clearDraft(userId);
 
-      // Confirm to admin
-      await this.telegramAPI.sendMessage(
-        chatId,
-        t("admin_movie_complete", adminLanguage, {
-          title,
-          quality: maxQuality,
-          count: videos.length,
-          deepLink,
-        }),
-        { parse_mode: "HTML" },
-      );
-
       console.log(
-        `[AdminWorkflow] Movie completed for user ${userId} (${adminLanguage}), ID: ${movieId}`,
+        `[AdminWorkflow] Movie finalized for user ${userId}, pending post ID: ${postId}`,
       );
     } catch (error) {
       console.error("[AdminWorkflow] Failed to finish movie:", error);

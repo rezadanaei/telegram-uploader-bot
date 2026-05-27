@@ -100,4 +100,61 @@ export class TelegramAPI {
       reply_markup: replyMarkup,
     });
   }
+
+  /**
+   * Edit message text content
+   */
+  async editMessageText(chatId, callbackQueryId, text, options = {}) {
+    const messageId = callbackQueryId; // In most cases, this is the message_id
+    return this.request("editMessageText", {
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+      parse_mode: "HTML",
+      ...options,
+    });
+  }
+
+  /**
+   * Copy message from one chat to another (hides the forward header)
+   */
+  async copyMessage(chatId, fromChatId, messageId, options = {}) {
+    return this.request("copyMessage", {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_id: messageId,
+      ...options,
+    });
+  }
+
+  /**
+   * Forward message from one chat to another
+   */
+  async forwardMessage(chatId, fromChatId, messageId, options = {}) {
+    return this.request("forwardMessage", {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_id: messageId,
+      ...options,
+    });
+  }
+
+  /**
+   * Get file info (useful for managing file_ids)
+   */
+  async getFile(fileId) {
+    return this.request("getFile", {
+      file_id: fileId,
+    });
+  }
+
+  /**
+   * Delete message
+   */
+  async deleteMessage(chatId, messageId) {
+    return this.request("deleteMessage", {
+      chat_id: chatId,
+      message_id: messageId,
+    });
+  }
 }
